@@ -1,7 +1,7 @@
 /*
- * This file contains the practice 5 source code corresponding with the 
+ * This file contains the practice 5 source code corresponding with the
  * project planification using TaskJuggler in the "Proyecto Software" course.
- * It is based on the Tutorial project offered by TaskJuggler and maintains 
+ * It is based on the Tutorial project offered by TaskJuggler and maintains
  * some elements of it
  */
 
@@ -19,7 +19,7 @@ project pSix "Web Game"  2025-12-15 +5m {
   # the project reports. If not specified, the current day will be
   # used, but this will likely be outside of the project range, so it
   # can't be seen in the reports.
-  now 2026-02-25-13:00
+  now 2026-04-10-15:11
   # The currency for all money values is the US Dollar.
   currency "EUR"
 
@@ -68,6 +68,10 @@ resource dev2 "Samantha Müller" {
 resource dev3 "Peter Green" {
   email "kkk@unizar.es"
 }
+resource yo "Lorién Blasco Atarés" {
+  email "901218@unizar.es"
+  limits { dailymax 4h }
+}
 
 # Now we specify the work packages. The whole project is described as
 # a task that contains subtasks. These subtasks are then broken down
@@ -79,7 +83,7 @@ task WMGame "Web & Mobile Game" {
   # All work-related costs will be booked to this account unless the
   # subtasks specify something different.
   chargeset manag
-  
+
   # For the duration of the project we have running cost that are not
   # included in the labor cost.
   charge 60 perday
@@ -92,7 +96,7 @@ task WMGame "Web & Mobile Game" {
   }
 
   task tback "Back End" {
-    # It is necessary to “purge” the “chargeset” because it has been assigned previously to other variable 
+    # It is necessary to “purge” the “chargeset” because it has been assigned previously to other variable
     purge chargeset
     chargeset back
     responsible dev1
@@ -144,7 +148,44 @@ task WMGame "Web & Mobile Game" {
       effort 6d
       allocate dev1
       depends WMGame.twebF.tFEc
-    }    
+    }
+  }
+
+  task tmobF "Mobile Front End" {
+    purge chargeset
+    chargeset mFront
+    responsible yo
+    depends WMGame.tback.tBEd
+
+    task tMobDesign "Mobile GUI Design" {
+      effort 5d
+      allocate dev3
+    }
+    task tMobDev "Mobile App Construction" {
+      effort 15d
+      allocate yo
+      journalentry 2026-04-10 "Inicio del desarrollo móvil" {
+        author yo
+        alert green
+        summary "Se comienza el desarrollo móvil y se actualiza la planificación general de la práctica."
+      }
+    }
+  }
+
+  task tcloud "Cloud Deployment" {
+    purge chargeset
+    chargeset back
+    responsible dev1
+    depends WMGame.tback.tbackDev
+
+    task tCloudEval "Cloud Provider Evaluation" {
+      effort 3d
+      allocate boss
+    }
+    task tCloudDeploy "Cloud Backend Deployment" {
+      effort 5d
+      allocate dev1
+    }
   }
 
   task ttest "Acceptance tests" {
@@ -154,9 +195,12 @@ task WMGame "Web & Mobile Game" {
       actual:effort 20d
       depends WMGame.twebF
       depends WMGame.tback
+      depends WMGame.tmobF
+      depends WMGame.tcloud
+      minstart 2026-05-15
       }
 
-    
+
   task deliveries "Milestones" {
 
     # Some milestones have customer payments associated with them. We
@@ -170,7 +214,7 @@ task WMGame "Web & Mobile Game" {
       # Here we use the built-in macro ${projectstart} to align the
       # start of the task with the above specified project time frame.
       start ${projectstart}
-  
+
       # At the beginning of this task we receive a payment from the
       # customer. This is credited to the account associated with this
       # task when the task starts.
@@ -223,7 +267,12 @@ textreport frame "" {
     formats html
     center '<[report id="overview"]>'
   }
-  
+
+  textreport planOvervi "Initial Plan" {
+    formats html
+    center '<[report id="planOverview"]>'
+  }
+
   textreport "Status" {
     formats html
     center -8<-
@@ -351,4 +400,16 @@ resourcereport resourceGraph "" {
   # We only like to show leaf tasks for leaf resources.
   hidetask ~(isleaf() & isleaf_())
   sorttasks plan.start.up
+}
+
+# Informe adicional de la planificación inicial
+taskreport planOverview "" {
+  scenarios plan
+  headline "Initial Project Plan"
+  columns bsi { title 'WBS' }, name, start, end, effort, cost, revenue, chart { ${TaskTip} }
+  timeformat "%a %Y-%m-%d"
+  loadunit days
+  hideresource @all
+  balance cost rev
+  caption 'All effort values are in man days (Initial Plan scenario).'
 }
