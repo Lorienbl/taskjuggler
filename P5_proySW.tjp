@@ -157,10 +157,6 @@ task WMGame "Web & Mobile Game" {
     responsible yo
     depends WMGame.tback.tBEd
 
-    task tMobDesign "Mobile GUI Design" {
-      effort 5d
-      allocate dev3
-    }
     task tMobDev "Mobile App Construction" {
       effort 15d
       allocate yo
@@ -169,6 +165,10 @@ task WMGame "Web & Mobile Game" {
         alert green
         summary "Se comienza el desarrollo móvil y se actualiza la planificación general de la práctica."
       }
+    }
+    task tMobDesign "Mobile GUI Design" {
+      effort 5d
+      allocate dev3
     }
   }
 
